@@ -1,0 +1,84 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Policies;
+
+use App\Models\User;
+use Illuminate\Foundation\Auth\User as AuthUser;
+use Illuminate\Auth\Access\HandlesAuthorization;
+
+class UserPolicy
+{
+    use HandlesAuthorization;
+
+    /**
+     * هل يمكن للمستخدم رؤية قائمة المستخدمين؟
+     */
+    public function viewAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('ViewAny:User');
+    }
+
+    /**
+     * هل يمكن للمستخدم رؤية بيانات مستخدم محدد؟
+     */
+    public function view(AuthUser $authUser, User $model): bool
+    {
+        return $authUser->can('View:User');
+    }
+
+    /**
+     * هل يمكن للمستخدم إضافة مستخدم جديد؟
+     */
+    public function create(AuthUser $authUser): bool
+    {
+        return $authUser->can('Create:User');
+    }
+
+    /**
+     * هل يمكن للمستخدم تعديل بيانات مستخدم؟
+     */
+    public function update(AuthUser $authUser, User $model): bool
+    {
+        return $authUser->can('Update:User');
+    }
+
+    /**
+     * هل يمكن للمستخدم حذف مستخدم؟
+     */
+    public function delete(AuthUser $authUser, User $model): bool
+    {
+        return $authUser->can('Delete:User');
+    }
+
+    public function restore(AuthUser $authUser, User $model): bool
+    {
+        return $authUser->can('Restore:User');
+    }
+
+    public function forceDelete(AuthUser $authUser, User $model): bool
+    {
+        return $authUser->can('ForceDelete:User');
+    }
+
+    public function forceDeleteAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('ForceDeleteAny:User');
+    }
+
+    public function restoreAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('RestoreAny:User');
+    }
+
+    public function replicate(AuthUser $authUser, User $model): bool
+    {
+        return $authUser->can('Replicate:User');
+    }
+
+    public function reorder(AuthUser $authUser): bool
+    {
+        return $authUser->can('Reorder:User');
+    }
+}
