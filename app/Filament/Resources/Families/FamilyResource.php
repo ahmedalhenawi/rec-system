@@ -32,8 +32,14 @@ class FamilyResource extends Resource
     public static function table(Table $table): Table
     {
         return FamiliesTable::configure($table)
-            ->modifyQueryUsing(fn (Builder $query) => $query->with(['breadwinner' , 'user']));
-    }
+            ->modifyQueryUsing(fn (Builder $query) =>
+            $query
+                ->select('families.*')
+                ->with([
+                    'breadwinner:id,is_working,national_id,family_id,dob,full_name',
+                    'user:id,name',
+                ])
+            );    }
 
     public static function getRelations(): array
     {

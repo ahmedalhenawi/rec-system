@@ -20,14 +20,15 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Support\Carbon;
+use Maatwebsite\Excel\Events\AfterSheet;
+use pxlrbt\FilamentExcel\Actions\ExportBulkAction;
+use pxlrbt\FilamentExcel\Exports\ExcelExport;
+use pxlrbt\FilamentExcel\Columns\Column as ExcelColumn;
 
 class FamiliesTable
 {
     public static function configure(Table $table): Table
     {
-        $textColumn = TextColumn::make('breadwinner.dob') // استخدام العلاقة مباشرة
-        ->label(__('person.dob'))
-            ->date();
 
         return $table
             ->columns([
@@ -63,7 +64,13 @@ class FamiliesTable
                 IconColumn::make('breadwinner.is_working')
                     ->label(__('person.is_working'))
                     ->boolean(),
-                $textColumn,
+
+             //1. عمود تاريخ الميلاد
+                TextColumn::make('breadwinner.dob')
+                    ->label(__('person.dob'))
+                    ->state(fn ($record) => $record->breadwinner?->dob)
+//                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->date(),
 
 
                 // --- بيانات العائلة الأساسية ---
@@ -332,6 +339,26 @@ class FamiliesTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    ExportBulkAction::make()
+                        ->exports([
+                            ExcelExport::make()
+                                ->fromTable()
+                                ->except([
+                                    'breadwinner.dob',
+                                    'created_at',
+                                ])
+                                ->withColumns([
+                                    ExcelColumn::make('breadwinnerr.dob')
+                                        ->heading(__('person.dob'))
+                                        ->getStateUsing(fn ($record) => $record->breadwinner?->dob?->format('Y-m-d') ?? '-'),
+
+                                    ExcelColumn::make('created_att')
+                                        ->heading(__('family.created_at'))
+                                        ->getStateUsing(fn ($record) => $record->created_at?->format('Y-m-d')),
+                                ])
+
+
+                        ])
                 ]),
             ]);
 
