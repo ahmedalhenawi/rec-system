@@ -28,6 +28,8 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
             ->plugins([
                 FilamentShieldPlugin::make(), // تسجيل إضافة Shield
             ])

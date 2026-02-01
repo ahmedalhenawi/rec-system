@@ -127,6 +127,10 @@ class FamilyForm
                                                 ->label(__('family.source_name'))
                                                 ->required(),
                                         ])
+                                        ->createOptionAction(
+                                            fn ($action) => $action
+                                                ->visible(fn () => auth()->user()?->hasRole('super_admin'))
+                                        )
                                         ->required(),
 
                                     Select::make('addition_reason_id')
@@ -139,6 +143,10 @@ class FamilyForm
                                                 ->label(__('family.reason_name'))
                                                 ->required(),
                                         ])
+                                        ->createOptionAction(
+                                            fn ($action) => $action
+                                                ->visible(fn () => auth()->user()?->hasRole('super_admin'))
+                                        )
                                         ->required(),
                                 ]),
                                 Textarea::make('addition_notes')
@@ -254,11 +262,15 @@ class FamilyForm
                                                 ->label(__('person.chronic_diseases'))
                                                 ->relationship('chronicDiseases')
                                                 ->schema([
-                                                    TextInput::make('disease_name')
+                                                    Select::make('disease_name')
                                                         ->label(__('person.disease_name'))
-                                                        ->required(),
-                                                ])->addActionLabel(__('person.add_disease')),
-
+                                                        ->options(__('person.chronic_diseases_list'))
+                                                        ->required()
+                                                        ->searchable()
+                                                        ->distinct()
+                                                        ->disableOptionsWhenSelectedInSiblingRepeaterItems(),
+                                                ])
+                                                ->addActionLabel(__('person.add_disease')),
                                             Repeater::make('disabilities')
                                                 ->label(__('person.disabilities'))
                                                 ->relationship('disabilities')

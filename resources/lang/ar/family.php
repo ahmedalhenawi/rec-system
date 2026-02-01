@@ -21,7 +21,7 @@ return [
     'is_displaced'           => 'هل الأسرة نازحة؟',
     'displacement_type'      => 'نوع النزوح',
     'displacement_center'    => 'مركز الإيواء',
-    'displacement_address'   => 'عنوان النزوح',
+    'displacement_address'   => ' (عنوان الايواء)عنوان النزوح',
     'inside'                 => 'داخل المحافظة',
     'outside'                => 'خارج المحافظة',
 

@@ -20,8 +20,8 @@ return [
 
     'relations' => [
         'head'     => 'رب الأسرة',
-        'wife'     => 'زوجة',
-        'son'      => 'ابن/ـة',
+        'wife_or_husband'     => 'زوج/ـة',
+        'child'      => 'ابن/ـة',
         // 'daughter' => 'ابنة',
         // 'father'   => 'أب',
         // 'mother'   => 'أم',
@@ -86,5 +86,14 @@ return [
 
     ],
 
+    'chronic_diseases_list' => [
+        'diabetes' => 'السكري',
+        'hypertension' => 'ضغط الدم',
+        'heart_disease' => 'أمراض القلب',
+        'asthma' => 'الربو',
+        'cancer' => 'السرطان',
+        'kidney_disease' => 'أمراض الكلى',
+        'other' => 'أخرى',
+    ],
 ];
 

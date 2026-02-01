@@ -54,10 +54,6 @@ class Family extends Model
             $model->user_id = auth()->id();
         });
 
-//        static::updating(function ($model) {
-//            $model->user_id = auth()->id();
-//        });
-
 
         static::addGlobalScope('user_filter', function (Builder $builder) {
             // 1. التأكد من أن هناك مستخدم مسجل دخول (لتجنب الأخطاء في التنبيهات أو الـ Console)
@@ -65,7 +61,6 @@ class Family extends Model
                 $user = Auth::user();
 
                 // 2. التحقق مما إذا كان المستخدم يملك صلاحية super_admin
-                // ملاحظة: افترضنا أنك تستخدم Spatie Permission أو ميثود hasRole
                 if (! $user->hasRole('super_admin')) {
                     $builder->where('user_id', $user->id);
                 }
