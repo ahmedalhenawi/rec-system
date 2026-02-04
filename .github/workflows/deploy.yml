@@ -36,7 +36,8 @@ jobs:
         port: 65002
         source: "project.tar.gz"
         target: "/home/${{ secrets.HOSTINGER_SSH_USER }}/domains/so-rec.org/public_html"
-        debug: true  # 👈 هذا السطر الجديد سيكشف لنا سبب الخطأ
+        timeout: 120s      # زيادة وقت المحاولة
+        command_timeout: 30m
 
     - name: 🛠️ Extract & Configure on Server
       uses: appleboy/ssh-action@master
@@ -45,7 +46,8 @@ jobs:
         username: ${{ secrets.HOSTINGER_SSH_USER }}
         key: ${{ secrets.HOSTINGER_SSH_KEY }}
         port: 65002
-        debug: true  # 👈 وهنا أيضاً
+        timeout: 120s      # زيادة وقت المحاولة
+        command_timeout: 30m
         script: |
           cd /home/${{ secrets.HOSTINGER_SSH_USER }}/domains/so-rec.org/public_html
           tar -xzf project.tar.gz
