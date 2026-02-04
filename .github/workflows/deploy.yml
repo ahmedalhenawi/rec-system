@@ -1,0 +1,57 @@
+name: Deploy to Hostinger
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v4
+
+    - name: 🐘 Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+
+    - name: 📦 Install Dependencies
+      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+    - name: 📂 Prepare files (Compress)
+      run: |
+        rm -rf .git
+        rm -rf .github
+        tar -czf project.tar.gz .
+
+    - name: 🚀 Upload to Hostinger
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.HOSTINGER_SSH_HOST }}
+        username: ${{ secrets.HOSTINGER_SSH_USER }}
+        key: ${{ secrets.HOSTINGER_SSH_KEY }}
+        port: 65002
+        source: "project.tar.gz"
+        target: "/home/${{ secrets.HOSTINGER_SSH_USER }}/domains/so-rec.org/public_html"
+        timeout: 120s      # زيادة وقت المحاولة
+        command_timeout: 30m
+
+    - name: 🛠️ Extract & Configure on Server
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOSTINGER_SSH_HOST }}
+        username: ${{ secrets.HOSTINGER_SSH_USER }}
+        key: ${{ secrets.HOSTINGER_SSH_KEY }}
+        port: 65002
+        timeout: 120s      # زيادة وقت المحاولة
+        command_timeout: 30m
+        script: |
+          cd /home/${{ secrets.HOSTINGER_SSH_USER }}/domains/so-rec.org/public_html
+          tar -xzf project.tar.gz
+          rm project.tar.gz
+          php artisan migrate --force
+          php artisan optimize:clear
+          chmod -R 775 storage bootstrap/cache
