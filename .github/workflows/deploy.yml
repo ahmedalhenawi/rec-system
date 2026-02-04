@@ -1,0 +1,67 @@
+name: Deploy to Hostinger
+
+on:
+  push:
+    branches:
+      - main  # ⚠️ تأكد: هل اسم الفرع الرئيسي عندك main أو master؟ (غالباً main)
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v4
+
+    - name: 🐘 Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2' # يمكنك تعديلها حسب نسخة لارافيل عندك
+
+    - name: 📦 Install Dependencies
+      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+    - name: 📂 Prepare files (Compress)
+      run: |
+        # نحذف ملفات git لتقليل الحجم ومنع امتلاء الـ Inodes
+        rm -rf .git
+        rm -rf .github
+        # نضغط المشروع في ملف واحد سريع النقل
+        tar -czf project.tar.gz .
+
+    - name: 🚀 Upload to Hostinger
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.HOSTINGER_SSH_HOST }}
+        username: ${{ secrets.HOSTINGER_SSH_USER }}
+        key: ${{ secrets.HOSTINGER_SSH_KEY }}
+        port: 65002
+        source: "project.tar.gz"
+        # المسار الذي اكتشفناه سوياً
+        target: "/home/${{ secrets.HOSTINGER_SSH_USER }}/domains/so-rec.org/public_html"
+
+    - name: 🛠️ Extract & Configure on Server
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOSTINGER_SSH_HOST }}
+        username: ${{ secrets.HOSTINGER_SSH_USER }}
+        key: ${{ secrets.HOSTINGER_SSH_KEY }}
+        port: 65002
+        script: |
+          # ننتقل لمجلد الموقع
+          cd /home/${{ secrets.HOSTINGER_SSH_USER }}/domains/so-rec.org/public_html
+          
+          # فك الضغط واستبدال الملفات
+          tar -xzf project.tar.gz
+          rm project.tar.gz
+          
+          # تشغيل أوامر لارافيل الضرورية
+          php artisan migrate --force
+          php artisan optimize:clear
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+          
+          # التأكد من الصلاحيات (مهم جداً لمدير الملفات)
+          chmod -R 775 storage bootstrap/cache
+          chmod 755 public
