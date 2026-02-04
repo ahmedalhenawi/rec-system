@@ -41,13 +41,13 @@ class FamilyImporter extends Importer
             ImportColumn::make('dob')->label('تاريخ الميلاد')->rules(['date']),
             ImportColumn::make('gender')->label('الجنس'),
             ImportColumn::make('relation')->label('صلة القرابة'),
+
             ImportColumn::make('is_working')->label('يعمل؟')->boolean(),
         ];
     }
 
     public function resolveRecord(): ?Family
     {
-        // 1. تحديد مفتاح الكاش (رقم العائلة في الإكسل + رقم عملية الاستيراد)
         $familyNumberInExcel = $this->data['number'];
         $importId = $this->import->id;
         $cacheKey = "import_{$importId}_family_{$familyNumberInExcel}";
