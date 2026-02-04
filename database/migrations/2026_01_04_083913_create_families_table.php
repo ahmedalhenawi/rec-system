@@ -25,7 +25,6 @@ return new class extends Migration
             $table->text('displacement_address')->nullable();
 
             // الدخل
-            $table->decimal('income', 10, 2)->nullable();
             $table->string('income_range'); // <500, 500-1000..
             $table->foreignId('income_source_id')->constrained('income_sources');
 

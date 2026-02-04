@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources\Families\Pages;
 
+use App\Filament\Imports\FamilyImporter;
 use App\Filament\Resources\Families\FamilyResource;
 use Filament\Actions\CreateAction;
+use Filament\Actions\ImportAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,6 +17,11 @@ class ListFamilies extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            ImportAction::make()
+                ->importer(FamilyImporter::class)
+                ->label('استيراد عائلات')
+                ->icon('heroicon-o-arrow-up-tray')
+                ->visible(fn () => auth()->user()->hasRole('super_admin')),
             CreateAction::make(),
         ];
     }
@@ -41,4 +48,6 @@ class ListFamilies extends ListRecords
                 ->badge(\App\Models\Family::where('governorate', 'south')->count()),
         ];
     }
+
+
 }

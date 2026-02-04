@@ -44,35 +44,28 @@ class Family extends Model
     protected static function booted()
     {
         static::creating(function ($model) {
-            // Get only the numeric part of the last code
-            $lastRecord = static::latest('id')->first();
+            // توليد كود العائلة
+            $lastRecord = static::withoutGlobalScopes()->latest('id')->first();
             $nextNumber = $lastRecord ? ($lastRecord->id + 1) : 1;
-
-            // Use str_pad if you want leading zeros (e.g., FAM-001)
             $model->family_code = 'FAM-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
 
-            $model->user_id = auth()->id();
+            // التعديل الهام: نضع Auth ID فقط إذا كان الحقل فارغاً
+            // هذا يسمح لـ Importer بتمرير الـ ID دون أن يتم مسحه
+            if (is_null($model->user_id) && Auth::check()) {
+                $model->user_id = Auth::id();
+            }
         });
 
-
         static::addGlobalScope('user_filter', function (Builder $builder) {
-            // 1. التأكد من أن هناك مستخدم مسجل دخول (لتجنب الأخطاء في التنبيهات أو الـ Console)
+            // هذا الشرط يمنع تفعيل السكوب أثناء عمل الـ Queue
             if (Auth::check()) {
                 $user = Auth::user();
-
-                // 2. التحقق مما إذا كان المستخدم يملك صلاحية super_admin
                 if (! $user->hasRole('super_admin')) {
                     $builder->where('user_id', $user->id);
                 }
             }
         });
-
-
-
-
-
     }
-
     public function additionSource(): BelongsTo
     {
         return $this->belongsTo(AdditionSource::class);
